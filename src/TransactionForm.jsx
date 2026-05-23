@@ -1,6 +1,5 @@
 import { useState } from 'react'
-
-const categories = ['food', 'housing', 'utilities', 'transport', 'entertainment', 'salary', 'other'];
+import { CATEGORIES } from './constants'
 
 function TransactionForm({ onAdd }) {
   const [description, setDescription] = useState('');
@@ -10,12 +9,13 @@ function TransactionForm({ onAdd }) {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!description || !amount) return;
+    const parsedAmount = Number(amount);
+    if (!description.trim() || isNaN(parsedAmount) || parsedAmount <= 0) return;
 
     onAdd({
-      id: Date.now(),
-      description,
-      amount: parseFloat(amount),
+      id: crypto.randomUUID(),
+      description: description.trim(),
+      amount: parsedAmount,
       type,
       category,
       date: new Date().toISOString().split('T')[0],
@@ -33,8 +33,9 @@ function TransactionForm({ onAdd }) {
       <form onSubmit={handleSubmit}>
         <div className="form-grid">
           <div className="form-field">
-            <label>Description</label>
+            <label htmlFor="tx-description">Description</label>
             <input
+              id="tx-description"
               type="text"
               placeholder="e.g. Grocery run"
               value={description}
@@ -42,11 +43,12 @@ function TransactionForm({ onAdd }) {
             />
           </div>
           <div className="form-field">
-            <label>Amount</label>
+            <label htmlFor="tx-amount">Amount</label>
             <input
+              id="tx-amount"
               type="number"
               placeholder="0.00"
-              min="0"
+              min="0.01"
               step="0.01"
               value={amount}
               onChange={e => setAmount(e.target.value)}
@@ -55,8 +57,8 @@ function TransactionForm({ onAdd }) {
         </div>
         <div className="form-row">
           <div className="form-field">
-            <label>Type</label>
-            <div className="type-toggle">
+            <label id="tx-type-label">Type</label>
+            <div className="type-toggle" role="group" aria-labelledby="tx-type-label">
               <button
                 type="button"
                 className={type === 'income' ? 'active-income' : ''}
@@ -74,9 +76,13 @@ function TransactionForm({ onAdd }) {
             </div>
           </div>
           <div className="form-field">
-            <label>Category</label>
-            <select value={category} onChange={e => setCategory(e.target.value)}>
-              {categories.map(cat => (
+            <label htmlFor="tx-category">Category</label>
+            <select
+              id="tx-category"
+              value={category}
+              onChange={e => setCategory(e.target.value)}
+            >
+              {CATEGORIES.map(cat => (
                 <option key={cat} value={cat}>
                   {cat.charAt(0).toUpperCase() + cat.slice(1)}
                 </option>

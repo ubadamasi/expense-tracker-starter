@@ -1,20 +1,10 @@
 import { useState } from 'react'
-
-const categories = ['food', 'housing', 'utilities', 'transport', 'entertainment', 'salary', 'other'];
-
-const CAT_STYLE = {
-  food:          { color: '#FF8A65', background: 'rgba(255,138,101,0.12)' },
-  housing:       { color: '#4F7EFF', background: 'rgba(79,126,255,0.12)' },
-  utilities:     { color: '#FFD166', background: 'rgba(255,209,102,0.12)' },
-  transport:     { color: '#00D98B', background: 'rgba(0,217,139,0.12)' },
-  entertainment: { color: '#C77DFF', background: 'rgba(199,125,255,0.12)' },
-  salary:        { color: '#06D6A0', background: 'rgba(6,214,160,0.12)' },
-  other:         { color: '#8892A4', background: 'rgba(136,148,164,0.12)' },
-};
+import { CATEGORIES, CATEGORY_STYLE } from './constants'
 
 function TransactionList({ transactions, onDelete }) {
   const [filterType, setFilterType] = useState('all');
   const [filterCategory, setFilterCategory] = useState('all');
+  const [pendingDelete, setPendingDelete] = useState(null);
 
   let filtered = transactions;
   if (filterType !== 'all') filtered = filtered.filter(t => t.type === filterType);
@@ -35,7 +25,7 @@ function TransactionList({ transactions, onDelete }) {
         </select>
         <select value={filterCategory} onChange={e => setFilterCategory(e.target.value)}>
           <option value="all">All Categories</option>
-          {categories.map(cat => (
+          {CATEGORIES.map(cat => (
             <option key={cat} value={cat}>
               {cat.charAt(0).toUpperCase() + cat.slice(1)}
             </option>
@@ -46,11 +36,11 @@ function TransactionList({ transactions, onDelete }) {
       <table className="tx-table">
         <thead>
           <tr>
-            <th>Date</th>
-            <th>Description</th>
-            <th>Category</th>
-            <th>Amount</th>
-            <th></th>
+            <th scope="col">Date</th>
+            <th scope="col">Description</th>
+            <th scope="col">Category</th>
+            <th scope="col">Amount</th>
+            <th scope="col" aria-label="Actions"></th>
           </tr>
         </thead>
         <tbody>
@@ -59,7 +49,7 @@ function TransactionList({ transactions, onDelete }) {
               <td colSpan={5} className="tx-empty">No transactions match your filters.</td>
             </tr>
           ) : filtered.map(t => {
-            const style = CAT_STYLE[t.category] ?? CAT_STYLE.other;
+            const style = CATEGORY_STYLE[t.category] ?? CATEGORY_STYLE.other;
             return (
               <tr key={t.id}>
                 <td className="tx-date">{t.date}</td>
@@ -68,15 +58,33 @@ function TransactionList({ transactions, onDelete }) {
                   <span className="cat-badge" style={style}>{t.category}</span>
                 </td>
                 <td className={`tx-amount ${t.type === 'income' ? 'income-amount' : 'expense-amount'}`}>
-                  {t.type === 'income' ? '+' : '−'}${parseFloat(t.amount).toFixed(2)}
+                  {t.type === 'income' ? '+' : '−'}${Number(t.amount).toFixed(2)}
                 </td>
                 <td>
-                  <button
-                    className="delete-btn"
-                    onClick={() => { if (window.confirm('Delete this transaction?')) onDelete(t.id); }}
-                  >
-                    ✕
-                  </button>
+                  {pendingDelete === t.id ? (
+                    <span className="inline-confirm">
+                      <button
+                        className="confirm-btn"
+                        onClick={() => { onDelete(t.id); setPendingDelete(null); }}
+                      >
+                        Delete
+                      </button>
+                      <button
+                        className="cancel-btn"
+                        onClick={() => setPendingDelete(null)}
+                      >
+                        Cancel
+                      </button>
+                    </span>
+                  ) : (
+                    <button
+                      className="delete-btn"
+                      aria-label={`Delete transaction: ${t.description}`}
+                      onClick={() => setPendingDelete(t.id)}
+                    >
+                      ✕
+                    </button>
+                  )}
                 </td>
               </tr>
             );

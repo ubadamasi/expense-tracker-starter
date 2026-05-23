@@ -381,6 +381,40 @@ h1 {
   background: var(--expense-dim);
 }
 
+.inline-confirm {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.confirm-btn,
+.cancel-btn {
+  padding: 4px 10px;
+  border-radius: var(--r-sm);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: opacity 0.15s;
+}
+
+.confirm-btn {
+  background: var(--expense-dim);
+  color: var(--expense);
+  border-color: var(--expense);
+}
+
+.confirm-btn:hover { opacity: 0.8; }
+
+.cancel-btn {
+  background: var(--surface-2);
+  color: var(--text-muted);
+  border-color: var(--border-bright);
+}
+
+.cancel-btn:hover { color: var(--text-dim); }
+
 .tx-empty {
   text-align: center;
   padding: 40px;

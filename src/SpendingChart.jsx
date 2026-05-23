@@ -1,14 +1,5 @@
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Cell, ResponsiveContainer } from 'recharts';
-
-const COLORS = {
-  food:          '#FF8A65',
-  housing:       '#4F7EFF',
-  utilities:     '#FFD166',
-  transport:     '#00D98B',
-  entertainment: '#C77DFF',
-  salary:        '#06D6A0',
-  other:         '#8892A4',
-};
+import { CATEGORY_COLORS } from './constants'
 
 const CustomTooltip = ({ active, payload }) => {
   if (!active || !payload?.length) return null;
@@ -26,7 +17,7 @@ function SpendingChart({ transactions }) {
     transactions
       .filter(t => t.type === 'expense')
       .reduce((acc, t) => {
-        acc[t.category] = (acc[t.category] || 0) + t.amount;
+        acc[t.category] = (acc[t.category] || 0) + Number(t.amount);
         return acc;
       }, {})
   ).map(([name, value]) => ({ name, value }));
@@ -60,7 +51,7 @@ function SpendingChart({ transactions }) {
             <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(255,255,255,0.04)' }} />
             <Bar dataKey="value" radius={[4, 4, 0, 0]}>
               {data.map(entry => (
-                <Cell key={entry.name} fill={COLORS[entry.name] ?? '#8892A4'} />
+                <Cell key={entry.name} fill={CATEGORY_COLORS[entry.name] ?? '#8892A4'} />
               ))}
             </Bar>
           </BarChart>
